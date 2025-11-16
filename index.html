@@ -61,9 +61,9 @@
     <script>
         let username = "";
         
-        // TODO: replace these with your real InfluxDB settings later
+        // InfluxDB settings - replace INFLUX_TOKEN with your real token
         const INFLUX_URL = "https://us-east-1-1.aws.cloud2.influxdata.com/api/v2/write";
-        const INFLUX_TOKEN = "p1sMlUrLCMIbbHq_RUDgcIZeXkfTl8P9EQ3n8hyNryWFdcJihNYT6TRs6Nmdw6myd3KkGTWM4-lKH5dtIWZL9A==";
+        const INFLUX_TOKEN = "p1sMlUrLCMIbbHq_RUDgcIZeXkfTl8P9EQ3n8hyNryWFdcJihNYT6TRs6Nmdw6myd3KkGTWM4-lKH5dtIWZL9A=="; // <-- replace this
         const ORG = "Dev Team";
         const BUCKET = "clicks";
 
@@ -84,7 +84,7 @@
         function sendClick() {
             const data = `clicks,user=${username} value=1`;
 
-            fetch(`${INFLUX_URL}?org=${ORG}&bucket=${BUCKET}&precision=ms`, {
+            fetch(`${INFLUX_URL}?org=${encodeURIComponent(ORG)}&bucket=${encodeURIComponent(BUCKET)}&precision=ms`, {
                 method: "POST",
                 headers: {
                     "Authorization": `Token ${INFLUX_TOKEN}`,
@@ -94,13 +94,13 @@
             })
             .then(res => {
                 if (!res.ok) {
-                    document.getElementById("status").innerText = "Error: " + res.statusText;
+                    document.getElementById("status").innerText = `Error: ${res.status} ${res.statusText}`;
                 } else {
                     document.getElementById("status").innerText = "Click sent!";
                 }
             })
             .catch(err => {
-                document.getElementById("status").innerText = "Network error";
+                document.getElementById("status").innerText = "Network error: " + err;
             });
         }
     </script>
