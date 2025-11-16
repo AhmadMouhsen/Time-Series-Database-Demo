@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Class Click Race</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 60px;
+            background: #f2f2f2;
+        }
+        #container {
+            background: white;
+            width: 400px;
+            margin: auto;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+        button {
+            font-size: 32px;
+            padding: 20px 40px;
+            margin-top: 15px;
+            cursor: pointer;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 10px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        input {
+            font-size: 20px;
+            padding: 8px;
+            width: 80%;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>Class Click Race</h1>
+
+        <div id="setup">
+            <p>Enter your username:</p>
+            <input type="text" id="username" placeholder="e.g. Alice" />
+            <button onclick="startGame()">Start</button>
+        </div>
+
+        <div id="game" style="display:none;">
+            <h2 id="userLabel"></h2>
+            <button id="clickBtn">CLICK!</button>
+            <p id="status"></p>
+        </div>
+    </div>
+
+    <script>
+        let username = "";
+        
+        // TODO: replace these with your real InfluxDB settings later
+        const INFLUX_URL = "YOUR_INFLUX_WRITE_URL_HERE";
+        const INFLUX_TOKEN = "YOUR_TOKEN_HERE";
+        const ORG = "YOUR_ORG_HERE";
+        const BUCKET = "YOUR_BUCKET_HERE";
+
+        function startGame() {
+            username = document.getElementById("username").value.trim();
+            if (username === "") {
+                alert("Please enter a username.");
+                return;
+            }
+
+            document.getElementById("setup").style.display = "none";
+            document.getElementById("game").style.display = "block";
+            document.getElementById("userLabel").innerText = "User: " + username;
+
+            document.getElementById("clickBtn").onclick = sendClick;
+        }
+
+        function sendClick() {
+            const data = `clicks,user=${username} value=1`;
+
+            fetch(`${INFLUX_URL}?org=${ORG}&bucket=${BUCKET}&precision=ms`, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Token ${INFLUX_TOKEN}`,
+                    "Content-Type": "text/plain"
+                },
+                body: data
+            })
+            .then(res => {
+                if (!res.ok) {
+                    document.getElementById("status").innerText = "Error: " + res.statusText;
+                } else {
+                    document.getElementById("status").innerText = "Click sent!";
+                }
+            })
+            .catch(err => {
+                document.getElementById("status").innerText = "Network error";
+            });
+        }
+    </script>
+</body>
+</html>
